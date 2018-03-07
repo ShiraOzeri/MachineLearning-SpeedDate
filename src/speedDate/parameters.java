@@ -202,4 +202,43 @@ public class parameters {
  
 
     }
+    
+    public enum Order {
+    	iid,
+    	id,
+    	gender,
+    	condtn,
+    	wave,
+    	round,
+    	order,
+    	partner,
+    	pid,
+    	match,
+    	dec_o,
+    	dec;
+    }
+    
+    public enum Character {
+    	iid,
+    	id,
+    	gender,
+    	partner,
+    	pid,
+    	match,
+    	dec_o,
+    	attr_o,	
+    	sinc_o,	
+    	intel_o,	
+    	fun_o,
+    	amb_o,	
+    	prob_o,
+    	age,
+    	attr3_1,	
+    	sinc3_1,	
+    	fun3_1,	
+    	intel3_1,	
+    	amb3_1,	
+    	dec;
+    	
+    }
 }

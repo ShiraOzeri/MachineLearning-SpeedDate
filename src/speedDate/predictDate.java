@@ -3,7 +3,11 @@ package speedDate;
 import Jama.Matrix;
 import smile.math.kernel.GaussianKernel;
 import smile.classification.SVM;
+import smile.classification.GradientTreeBoost;
 import smile.classification.AdaBoost;
+import smile.classification.DecisionTree;
+import smile.classification.FLD;
+import smile.classification.Maxent;
 import smile.data.NumericAttribute;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,7 +18,7 @@ import java.util.*;
 
 public class predictDate {
 
-	private static double[][] getSamples(double[][] pertner, int size) {
+	public static double[][] getSamples(double[][] pertner, int size) {
 		int match = 0, no_match = 0;
 		double[][] ans = new double[size * 2][pertner[0].length];
 		int j = 0;
@@ -80,8 +84,8 @@ public class predictDate {
 		}
 		printToFile(mat, "date_all.txt");
 
-		int size_learn = 530;
-		int size_test = 135;
+		int size_learn = 500;
+		int size_test = 165;
 		double[][] sample = getSamples(mat, size_learn);
 		int add_no=0;
 
@@ -106,6 +110,12 @@ public class predictDate {
 		myKNN.disL1(learn, test, 20);
 		myKNN.disL1(learn, test, 50);
 		myKNN.disL1(learn, test, 100);
+		myKNN.disL2(learn, test, 2);
+		myKNN.disL2(learn, test, 5);
+		myKNN.disL2(learn, test, 10);
+		myKNN.disL2(learn, test, 20);
+		myKNN.disL2(learn, test, 50);
+		myKNN.disL2(learn, test, 100);
 
 		double[][] x = new double[learn.length][learn[0].length - 1];
 		for (int i = 0; i < learn.length; i++) {
@@ -147,7 +157,28 @@ public class predictDate {
 		System.out.println("SVM Algorithm");
 		System.out.format("The accuracy is %.2f%%\n", 100.0 * (testx.length - error) / testx.length);
 		System.out.println();
+		//svm2
+	    for (int i = 0; i < x.length; i++) {
+	        //int j = Math.randomInt(x.length);
+	        int j=(int)((Math.random()*(x.length)));
+	        svm.learn(x[j], y[j]);
+	    }
+	            
+	    svm.finish();
 
+	    error = 0;
+	    for (int i = 0; i < testx.length; i++) {
+	        if (svm.predict(testx[i]) != testy[i]) {
+	            error++;
+	        }
+	    }
+		System.out.println("SVM2 Algorithm");
+
+		System.out.format("The accuracy is %.2f%%\n", 100.0 * (testx.length - error) / testx.length);
+	    //end svm2
+		
+		
+		
 		for (int j = 0; j < learn.length; j++) {
 			if (y[j] == 1)
 				y[j] = 0;
@@ -171,7 +202,7 @@ public class predictDate {
 		System.out.format("The accuracy is %.2f%%\n", 100.0 * (testx.length - error) / testx.length);
 		System.out.println();
 
-		forest = new AdaBoost(null, x, y, 1000);
+		forest = new AdaBoost(null, x, y, 500);
 		error = 0;
 		for (int i = 0; i < testx.length; i++) {
 			if (forest.predict(testx[i]) != testy[i]) {
@@ -181,7 +212,84 @@ public class predictDate {
 		System.out.println("ADA-BOOST Algorithm 500");
 		System.out.format("The accuracy is %.2f%%\n", 100.0 * (testx.length - error) / testx.length);
 		System.out.println();
-		forest=new AdaBoost(x,y,300);
+		
+		forest = new AdaBoost(x, y, 200);
+		error = 0;
+		for (int i = 0; i < testx.length; i++) {
+			if (forest.predict(testx[i]) != testy[i]) {
+				error++;
+			}
+		}
+		System.out.println("ADA-BOOST Algorithm 200");
+		System.out.format("The accuracy is %.2f%%\n", 100.0 * (testx.length - error) / testx.length);
+		System.out.println();
+		
+		
+		forest = new AdaBoost(null, x, y, 200, 4);
+		error = 0;
+		for (int i = 0; i < testx.length; i++) {
+			if (forest.predict(testx[i]) != testy[i]) {
+				error++;
+			}
+		}
+		System.out.println("ADA-BOOST Algorithm 200,4");
+		System.out.format("The accuracy is %.2f%%\n", 100.0 * (testx.length - error) / testx.length);
+		System.out.println();
+		
+		DecisionTree dtree=new DecisionTree(x, y, 100);
+		error = 0;
+		for (int i = 0; i < testx.length; i++) {
+			if (dtree.predict(testx[i]) != testy[i]) {
+				error++;
+			}
+		}
+		System.out.println("DecisionTree Algorithm 100");
+		System.out.format("The accuracy is %.2f%%\n", 100.0 * (testx.length - error) / testx.length);
+		System.out.println();
+		
+		/*
+		FLD fld=new FLD(x, y, -1);
+		error = 0;
+		for (int i = 0; i < testx.length; i++) {
+			if (fld.predict(testx[i]) != testy[i]) {
+				error++;
+			}
+		}
+		System.out.println("FLD Algorithm 100");
+		System.out.format("The accuracy is %.2f%%\n", 100.0 * (testx.length - error) / testx.length);
+		System.out.println();
+
+
+		Maxent maxent=new Maxent(10, x, y);
+		error = 0;
+		for (int i = 0; i < testx.length; i++) {
+			if (maxent.predict(testx[i]) != testy[i]) {
+				error++;
+			}
+		}
+		System.out.println("FLD Algorithm 100");
+		System.out.format("The accuracy is %.2f%%\n", 100.0 * (testx.length - error) / testx.length);
+		System.out.println();
+	*/	
+		int []double_y=new int[learn.length];
+		for (int j = 0; j < learn.length; j++) {
+			if (double_y[j] == 1)
+				y[j] = 0;
+			else
+				y[j] = 1;
+		}
+		
+		GradientTreeBoost gtb=new GradientTreeBoost(x,y,10);
+		error = 0;
+		for (int i = 0; i < testx.length; i++) {
+			if (gtb.predict(testx[i]) != testy[i]) {
+				error++;
+			}
+		}
+		System.out.println("gtb Algorithm 100");
+		System.out.format("The accuracy is %.2f%%\n", 100.0 * (testx.length - error) / testx.length);
+		System.out.println();
+
 	}
 
 	private static void printToFile(double[][] mat, String s) {

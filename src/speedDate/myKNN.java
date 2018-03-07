@@ -198,6 +198,66 @@ class myKNN {
 	}
 	
 	
+	/**
+	 * distance L1
+	 * @throws IOException
+	 */
+	public static void disL2(double[][]learn, double[][]test,int k ) throws IOException {
+		int qyes=0;
+		int qno=0;
+		double[] query = null;
+		String majClass1 = null;
+		int maj1 = 0;
+		int ans = learn[0].length-1;
+		List<Person> PesonList = new ArrayList<Person>();
+
+		for (int i = 0; i < learn.length; i++) {
+			PesonList.add(new Person(learn[i], learn[i][ans] == 0.0 ? "NO" : "YES"));
+		}
+
+		for (int i = 0; i < test.length; i++) {
+			query = test[i];
+			// find disnaces
+			List<Result> resultList = new ArrayList<Result>();
+			for (Person p : PesonList) {
+				double dist = 0.0;
+				for (int j = 0; j < p.PersonAttributes.length-1; j++) {
+						dist += Math.pow(p.PersonAttributes[j] - query[j], 2);
+				}
+				double distance = Math.sqrt(dist);
+				resultList.add(new Result(distance, p.match));
+			}
+
+			Collections.sort(resultList, new DistanceComparator());
+			String[] ss = new String[k];
+			for (int x = 0; x < k; x++) {
+				//System.out.println("match:"+query[ans]+"k="+x+": "+ resultList.get(x).match + " .... " + resultList.get(x).distance);
+
+				ss[x] = resultList.get(x).match;
+				
+
+			}
+			majClass1 = findMajorityClass1(ss);
+
+			if ((query[ans] == 0 && majClass1.equals("NO")) || (query[ans] == 1 && majClass1.equals("YES"))) {
+				maj1++;
+			}
+			
+			if(query[ans]==0){
+				qno++;
+			}
+			else if (query[ans]==1)
+				qyes++;
+
+
+		}
+		System.out.println("Knn, dist l2, result with K = "+k);
+		System.out.println("The accuracy is "+((double)maj1 / test.length)*100+"%");
+		System.out.println("qyes:"+qyes+" qno"+qno);
+
+
+	}
+	
 
 
 	public static void main(String args[]) throws IOException {
